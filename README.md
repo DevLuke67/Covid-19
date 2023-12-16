@@ -1,5 +1,4 @@
 # Covid-19
-Covid-19 is a contagious disease caused by Virus known as Sars-Cov-2, which hit the entire world in the year 2020.
 The Dataset comprises of six .csv files which contain information about the Covid-19 status across different countries and across the world. The data has been collected from the World Health Organization website and from several other government sources and then compiled thereafter. The six data files are explained below:
 
 'country_wise.csv': Raw data comprising of Covid-19 statistics (total cases, active cases, recovered cases, total deaths) across different countries/regions as defined by WHO.
