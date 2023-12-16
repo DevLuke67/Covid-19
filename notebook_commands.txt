@@ -1,0 +1,369 @@
+# Install Pandas if not already installed
+!pip install pandas
+!pip install matplotlib
+!pip install scikit-learn
+
+##############################################
+
+import numpy as np 
+import matplotlib.pyplot as plt 
+import matplotlib.colors as mcolors
+import pandas as pd 
+import random
+import math
+import time
+from sklearn.linear_model import LinearRegression, BayesianRidge
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.svm import SVR
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+import datetime
+import operator 
+%matplotlib inline
+import warnings
+
+##############################################
+
+# Define a function to read data from a CSV file
+# Use Pandas to read the CSV file into a DataFrame
+def read_data(path,filename):
+    return pd.read_csv(path+'/'+filename)
+
+##############################################
+
+# Define the path to the directory containing the 'country_wise.csv' file
+
+path = r'C:\Users\lukas\Covid-19'
+# Call the read_data function to load 'country_wise.csv' into a DataFrame
+country_wise = read_data(path, 'country_wise.csv')
+# Print the first few rows of the data
+country_wise.head()
+
+##############################################
+
+country_wise.shape
+
+##############################################
+
+day_wise_worldwide = read_data(path,'day-wise-worldwide.csv')
+day_wise_worldwide.head()
+
+##############################################
+
+day_wise_worldwide.shape
+
+##############################################
+
+day_wise_country = read_data(path,'day-wise-country.csv')
+day_wise_country.head()
+
+##############################################
+
+#Identify East African countries.
+east_africa_countries = ['Burundi', 'Djibouti', 'Eritrea', 'Ethiopia',
+                         'Kenya', 'Rwanda', 'Somalia',
+                         'South Sudan', 'Sudan', 'Tanzania', 'Uganda']
+# Filtering data for East African countries
+east_africa_data = country_wise[country_wise['Country/Region'].isin(east_africa_countries)]
+east_africa_data.head(11)
+
+##############################################
+
+# Save the filtered data to a new CSV file
+east_africa_data.to_csv('east-africa-covid-data.csv', index=False)
+
+##############################################
+
+kenya_county_cases = read_data(path,'kenya-county-cases-2022.csv')
+kenya_county_cases.head()
+
+##############################################
+
+kenya_county_cases.shape
+
+##############################################
+
+#Identify East African countries and filter the DataFrame accordingly.
+countries = ['Burundi', 'Djibouti', 'Eritrea', 'Ethiopia', 'Kenya', 'Rwanda', 'Somalia', 'South Sudan', 'Sudan', 'Tanzania', 'Uganda']
+east_africa_daily_cases = day_wise_country[day_wise_country['Country/Region'].isin(countries)]
+east_africa_daily_cases.head(30)
+
+##############################################
+
+east_africa_daily_cases.shape
+
+##############################################
+
+# Convert a column to datetime type
+day_wise_country['Date'] = pd.to_datetime(day_wise_country['Date'])
+
+##############################################
+
+#Identify Kenya and filter the DataFrame accordingly.
+country = ['Kenya']
+kenya_daily_cases = day_wise_country[day_wise_country['Country/Region'].isin(country)]
+kenya_daily_cases.head(30)
+
+##############################################
+
+# Save the filtered data to a new CSV file
+kenya_daily_cases.to_csv('kenya-daily-cases.csv', index=False)
+
+##############################################
+
+kenya_daily_cases.shape
+
+##############################################
+
+# Check for missing values
+missing_values = country_wise.isnull().sum()
+
+# Display missing values
+print("Missing Values:")
+print(missing_values)
+
+# Drop rows with missing values
+country_wise = country_wise.dropna()
+
+# Alternatively, fill missing values with the mean
+# df = df.fillna(df.mean())
+
+##############################################
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Assuming 'country_wise' is your DataFrame
+# Sort the DataFrame by Confirmed cases and Deaths
+df_sorted_confirmed = country_wise.sort_values(by='Confirmed', ascending=False).head(10)
+df_sorted_deaths = country_wise.sort_values(by='Deaths', ascending=False).head(10)
+
+# Plotting the bar graph for Confirmed cases
+plt.figure(figsize=(10, 6))
+plt.bar(df_sorted_confirmed['Country/Region'], df_sorted_confirmed['Confirmed'], color='blue')
+plt.title('Top 10 Countries/Regions with Highest Confirmed Cases')
+plt.xlabel('Country/Region')
+plt.ylabel('Confirmed Cases')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+# Plotting the bar graph for Deaths
+plt.figure(figsize=(10, 6))
+plt.bar(df_sorted_deaths['Country/Region'], df_sorted_deaths['Deaths'], color='red')
+plt.title('Top 10 Countries/Regions with Highest Deaths')
+plt.xlabel('Country/Region')
+plt.ylabel('Deaths')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+##############################################
+
+# Plotting the graph for New deaths over time
+plt.figure(figsize=(12, 6))
+
+# Plotting New deaths
+plt.plot(day_wise_worldwide['Date'], day_wise_worldwide['New deaths'], label='New deaths', color='red')
+
+# Set plot properties
+plt.title('New Deaths Over Time Worldwide')
+plt.xlabel('Date')
+plt.ylabel('New Deaths')
+plt.legend()
+plt.xticks(rotation=45, ha='right')
+plt.grid(True)
+
+# Show the plot
+plt.show()
+
+##############################################
+
+
+# Plotting the bar graph for daily COVID-19 metrics in Kenya
+plt.figure(figsize=(12, 8))
+
+# Bar width for better visibility
+bar_width = 0.2
+# Plotting Confirmed cases
+plt.bar(kenya_daily_cases['Date'] - pd.to_timedelta(bar_width * 2, unit='d'), kenya_daily_cases['Confirmed'], width=bar_width, label='Confirmed', color='blue')
+# Plotting Deaths
+plt.bar(kenya_daily_cases['Date'] - pd.to_timedelta(bar_width, unit='d'), kenya_daily_cases['Deaths'], width=bar_width, label='Deaths', color='red')
+# Plotting Recovered cases
+plt.bar(kenya_daily_cases['Date'], kenya_daily_cases['Recovered'], width=bar_width, label='Recovered', color='green')
+# Plotting Active cases
+plt.bar(kenya_daily_cases['Date'] + pd.to_timedelta(bar_width, unit='d'), kenya_daily_cases['Active'], width=bar_width, label='Active', color='orange')
+# Plotting New cases
+plt.bar(kenya_daily_cases['Date'] + pd.to_timedelta(bar_width * 2, unit='d'), kenya_daily_cases['New cases'], width=bar_width, label='New cases', color='purple')
+# Plotting New deaths
+plt.bar(kenya_daily_cases['Date'] + pd.to_timedelta(bar_width * 3, unit='d'), kenya_daily_cases['New deaths'], width=bar_width, label='New deaths', color='brown')
+# Plotting New recovered
+plt.bar(kenya_daily_cases['Date'] + pd.to_timedelta(bar_width * 4, unit='d'), kenya_daily_cases['New recovered'], width=bar_width, label='New recovered', color='cyan')
+# Set plot properties
+plt.title('Daily COVID-19 Metrics in Kenya')
+plt.xlabel('Date')
+plt.ylabel('Count')
+plt.legend()
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+##############################################
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Assuming 'kenya_county_cases' is your DataFrame
+# Plotting the horizontal bar graph for COVID-19 cases in Kenya counties
+plt.figure(figsize=(12, 8))
+
+# Sort the DataFrame by Cases
+kenya_county_cases_sorted = kenya_county_cases.sort_values(by='Cases', ascending=False)
+
+# Plotting the horizontal bar graph
+plt.barh(kenya_county_cases_sorted['County'], kenya_county_cases_sorted['Cases'], color='blue')
+
+# Set plot properties
+plt.title('COVID-19 Cases in Kenya Counties (2022)')
+plt.xlabel('Number of Cases')
+plt.ylabel('County')
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+##############################################
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Assuming 'east_africa_data' is your DataFrame
+# Sort the DataFrame by Confirmed cases
+east_africa_data_sorted = east_africa_data.sort_values(by='Confirmed', ascending=False)
+
+# Plotting the grouped bar graph
+plt.figure(figsize=(12, 8))
+
+bar_width = 0.2
+bar_positions = range(1, len(east_africa_data_sorted) * 2 + 1, 2)
+
+# Plotting Confirmed cases
+plt.bar(bar_positions, east_africa_data_sorted['Confirmed'], width=bar_width, label='Confirmed', color='blue')
+
+# Plotting Deaths
+plt.bar([pos + bar_width for pos in bar_positions], east_africa_data_sorted['Deaths'], width=bar_width, label='Deaths', color='red')
+
+# Plotting Recovered cases
+plt.bar([pos + 2 * bar_width for pos in bar_positions], east_africa_data_sorted['Recovered'], width=bar_width, label='Recovered', color='green')
+
+# Plotting Active cases
+plt.bar([pos + 3 * bar_width for pos in bar_positions], east_africa_data_sorted['Active'], width=bar_width, label='Active', color='orange')
+
+# Set plot properties
+plt.title('COVID-19 Cases in East African Countries')
+plt.xlabel('Country/Region')
+plt.ylabel('Count')
+plt.xticks([pos + 1.5 * bar_width for pos in bar_positions], east_africa_data_sorted['Country/Region'], rotation=45, ha='right')
+plt.legend()
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+##############################################
+
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+
+# Assuming kenya_daily_cases has columns: Date, Confirmed, New cases
+# If not, adjust the column names accordingly
+
+# Feature engineering: Extracting day of the year as a numerical feature
+kenya_daily_cases['Date'] = pd.to_datetime(kenya_daily_cases['Date'])
+kenya_daily_cases['DayOfYear'] = kenya_daily_cases['Date'].dt.dayofyear
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(
+    kenya_daily_cases[['DayOfYear']],
+    kenya_daily_cases['Confirmed'],
+    test_size=0.2,
+    random_state=42
+)
+
+# Train a linear regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+# Calculate Mean Squared Error
+mse = mean_squared_error(y_test, y_pred)
+print(f"Mean Squared Error: {mse}")
+
+# Visualize the predictions
+plt.figure(figsize=(10, 6))
+plt.scatter(X_test, y_test, color='black', label='Actual')
+plt.plot(X_test, y_pred, color='blue', linewidth=3, label='Linear Regression Prediction')
+plt.title('Linear Regression Prediction of Confirmed Cases Over Time (Kenya)')
+plt.xlabel('Day of the Year')
+plt.ylabel('Confirmed Cases')
+plt.legend()
+plt.show()
+
+############# -- Pyspark -- ##################
+
+%pip install pyspark
+%pip install seaborn
+
+##############################################
+
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.appName("HadoopDataRetrieval").enableHiveSupport().getOrCreate()
+
+##############################################
+
+hdfs_path = "hdfs://localhost:9500/data/country_wise.csv"
+
+# Example for reading a CSV file
+df = spark.read.csv(hdfs_path, header=True, inferSchema=True, samplingRatio=0.1)
+
+##############################################
+
+# Show the first few rows of the DataFrame
+df.show()
+
+##############################################
+
+# Now, read the full dataset
+full_df = spark.read.option("header", "true").csv(hdfs_path, header=True, inferSchema=True, samplingRatio=1)
+
+# Save the full DataFrame as a CSV file
+output_path = "dataset"
+full_df.write.mode("overwrite").csv(output_path, header=True)
+
+##############################################
+
+def read_data(path,filename):
+    return pd.read_csv(path+'/'+filename)
+
+##############################################
+
+# Access dataset
+path = r'C:\Users\lukas\pyspark'
+country_wise = read_data(path, 'country_wise.csv')
+# Print the first few rows of the data
+country_wise.head()
+
+
