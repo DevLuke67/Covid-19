@@ -1,3 +1,9 @@
+Lukas saidim - SCT222-0137/2020
+Nelson kamau - Sct222-0301/2020
+Kahura Gedion karanja - Sct222-0155/2020
+Kibet collins kemboi - SCT222-0147/2020
+Francis Peter Thuo - Sct222-0126/2020
+
 # Covid-19
 The Dataset comprises of six .csv files which contain information about the Covid-19 status across different countries and across the world. The data has been collected from the World Health Organization website and from several other government sources and then compiled thereafter. The six data files are explained below:
 
